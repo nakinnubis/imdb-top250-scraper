@@ -1,5 +1,4 @@
 # IMDB Top 250 Scraper
-======================
 
 ### About
 
