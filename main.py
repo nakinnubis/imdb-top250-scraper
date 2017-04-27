@@ -52,6 +52,30 @@ for i, el in enumerate(elements):
     if i > (args.c - 2) or i > 249:
         break
 
+def download(url, file_path):
+    response = requests.get(url, headers=HEADERS, stream=True)
+    if response.status_code == 200:
+        with open(file_path, 'wb') as f:
+            for chunk in response.iter_content(1024):
+                f.write(chunk)
+        return True
+    return None
+
+def to_slug(text, delimiter='-', to_lower=True):
+    if delimiter == '-':
+        text = re.sub('[^\w\s-]', '', text).strip()
+        if to_lower:
+            text = text.lower()
+        text = re.sub('\s+', delimiter, text)
+        text = re.sub('\-+', '-', text)
+    else:
+        text = re.sub('[^\w\s_]', '', text).strip()
+        if to_lower:
+            text = text.lower()
+        text = re.sub('\s+', delimiter, text)
+        text = re.sub('_+', '_', text)
+    return text
+
 def extract_movie_data(i, q):
     while True:
         url = q.get()
@@ -88,6 +112,10 @@ def extract_movie_data(i, q):
         data.update({"language": '\n'.join(elements[0].strip().split(','))}) if elements else data.update({"language": ""})
         elements = dom.xpath('//meta[@itemprop="datePublished"]/@content')
         data.update({"released": elements[0]}) if elements else data.update({"released": ""})
+        if args.mp:
+            elements = dom.xpath('//div[@class="poster"]//img/@src')
+            if elements:
+                download(elements[0], "data/" + to_slug(data["title"]) + ".jpg")
         with lock:
             movies.append(data)
         q.task_done()
@@ -105,18 +133,16 @@ if not args.f:
 else:
     print("Writing to file ...")
     if args.ft == "csv":
-        file_path = args.f + ".csv"
+        file_path = "data/" + args.f + ".csv"
         with open(file_path, "w") as f:
             w = csv.DictWriter(f, movies[0].keys())
             w.writeheader()
             w.writerows(movies)
     elif args.ft == "sqlite":
-        file_path = args.f + ".json"
-        with open(file_path, "w") as f:
-            f.write(json.dumps(movies))
+        pass
     else:
         # Default
-        file_path = args.f + ".json"
+        file_path = "data/" + args.f + ".json"
         with open(file_path, "w") as f:
             f.write(json.dumps(movies))
 
