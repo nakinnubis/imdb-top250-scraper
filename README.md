@@ -6,13 +6,9 @@ Script to scrape IMDB Top 250 list of movies and store scraped data in chosen fo
 
 ### Requirements
 
-Script is tested with python 3.5.2 version, probably will work older versions.
+Script is tested with python 3.5.2 version.
 
-```
-pip install -r requirements.txt
-```
-
-### Aditional Python Libraries
+#### Aditional Python Libraries
 
 - [lxml](https://github.com/lxml/lxml/)
 - [requests](https://github.com/kennethreitz/requests)
@@ -21,16 +17,18 @@ pip install -r requirements.txt
 
 ```
 git clone https://github.com/fuzzy69/imdb-top250-scraper.git
-
+cd imdb-top250-scraper/
+virtualenv -p /usr/bin/python3 env
+. env/bin/activate
+pip install -r requirements.txt
 ```
 
 ### Usage
 
 ```
-python main.py
+python main.py [ARGUMENTS]
 
 ```
-
 Optional arguments
 
 ```
@@ -42,3 +40,14 @@ Optional arguments
 -p P        Use proxies from file (max threads <= proxies count)
 -mp         Download movie posters
 ```
+Example:
+
+```
+python main.py -c 100 -t 2 -mp -f results -ft json
+```
+Using this command script will scrape 100 movies with 2 threads, save results in data/results.json and movie posters in data/* as jpg images.
+
+### TODO
+
+- save results to sqlite
+- proxies
